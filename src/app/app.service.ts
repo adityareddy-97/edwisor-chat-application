@@ -13,7 +13,7 @@ export class AppService {
 
   private url = 'https://chatapi.edwisor.com';
 
-  constructor(public http : HttpClient) 
+  constructor(public http : HttpClient,private cookieService : CookieService) 
   { 
 
   }
@@ -49,6 +49,12 @@ export class AppService {
     localStorage.setItem('userInfo',JSON.stringify(data));
   }
   
+  public logOut() : Observable<any> {
+    const params = new HttpParams().set('authToken',this.cookieService.get('authToken'));
+
+    return this.http.post(`${this.url}/api/v1/users/logout`,params);
+  }
+
   private handleError(err : HttpErrorResponse){
 
     let errorMessage = '';

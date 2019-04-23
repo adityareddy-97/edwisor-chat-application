@@ -1,10 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FirstCharComponent } from './first-char/first-char.component';
+import { UserDetailsComponent } from './user-details/user-details.component';
+import { FormsModule} from '@angular/forms';
 
 @NgModule({
-  declarations: [],
+  declarations: [FirstCharComponent, UserDetailsComponent],
   imports: [
-    CommonModule
+    CommonModule,
+    FormsModule
+  ],
+  exports : [
+    CommonModule,
+    FormsModule,
+    FirstCharComponent, 
+    UserDetailsComponent
   ]
 })
 export class SharedModule { }

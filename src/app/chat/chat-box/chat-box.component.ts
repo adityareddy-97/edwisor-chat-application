@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,ViewChild,ElementRef } from '@angular/core';
 import { SocketService} from './../../socket.service';
 import { AppService} from './../../app.service';
 import { Router} from '@angular/router';
@@ -14,6 +14,10 @@ import { ToastrService} from 'ngx-toastr';
 })
 export class ChatBoxComponent implements OnInit {
 
+  @ViewChild('scrollMe',{read : ElementRef})
+
+  public scrollMe : ElementRef;
+
   public authToken: any;
   public userInfo: any;
   public receiverId: any;
@@ -21,14 +25,22 @@ export class ChatBoxComponent implements OnInit {
   public userList: any = [];
   public disconnectedSocket: boolean;
 
+  public scrollToChatTop : boolean = false;
+  
+  public previousChatList : any =[];
+  public messageText : any;
+  public messageList : any = [];// stores the current message list display in chat box
+  public pageValue :number = 0;
+  public loadingPreviousChat : boolean = false;
+
+
   constructor(public AppService : AppService,
               public SocketService : SocketService,
               public router : Router,
               private toastr: ToastrService,
               private CookieService: CookieService) 
   { 
-    this.receiverId = this.CookieService.get('receiverId');
-    this.receiverName = this.CookieService.get('receiverName');
+   
 
   }
 
@@ -37,11 +49,23 @@ export class ChatBoxComponent implements OnInit {
     this.authToken = this.CookieService.get('authToken');
     this.userInfo = this.AppService.getUserInfoInLocalStorage();
 
+    this.receiverId = this.CookieService.get('receiverId');
+    this.receiverName = this.CookieService.get('receiverName');
+
+    console.log(this.receiverId,this.receiverName)
+
+    if(this.receiverId!=null && this.receiverId!=undefined && this.receiverId!=''){
+      this.userSelectedToChat(this.receiverId,this.receiverName);
+    }
+
+
     this.checkStatus();
 
     this.verifyUserConfirmation();
 
     this.getOnlineUserList();
+
+    this.getMessageFromAUser();
   }
 
   public checkStatus : any = () => {
@@ -79,5 +103,162 @@ export class ChatBoxComponent implements OnInit {
        console.log(this.userList);
     });
   }// end online-user-list
+
+
+  // chat related methods
+
+  public getPreviousChatWithAUser :any = ()=>{
+    let previousData = (this.messageList.length > 0 ? this.messageList.slice() : []);
+    
+    this.SocketService.getChat(this.userInfo.userId, this.receiverId, this.pageValue * 10)
+    .subscribe((apiResponse) => {
+
+      console.log(apiResponse);
+
+      if (apiResponse.status == 200) {
+
+        this.messageList = apiResponse.data.concat(previousData);
+
+      } else {
+
+        this.messageList = previousData;
+        this.toastr.warning('No Messages available')
+
+       
+
+      }
+
+      this.loadingPreviousChat = false;
+
+    }, (err) => {
+
+      this.toastr.error('some error occured')
+
+
+    });
+
+  }// end get previous chat with any user
+
+  public loadEarlierPageOfChat : any =() =>{
+    this.loadingPreviousChat = true;
+    this.pageValue++;
+    this.scrollToChatTop = true;
+    this.getPreviousChatWithAUser();
+  } // end load previous chat
+
+  public userSelectedToChat : any =(id,name) =>{
+    
+    console.log("setting user as active") ;
+
+     // setting that user to chatting true
+     this.userList.map((user) =>{
+       if(user.userId==id){
+         user.chatting = true;
+       }
+       else{
+         user.chatting = false;
+       }
+     });
+
+     this.CookieService.set('receiverId',id);
+     this.CookieService.set('receiverName',name);
+
+     this.receiverId = id;
+     this.receiverName = name;
+
+     this.messageList = [];
+
+     this.pageValue = 0;
+
+     let chatDetails = {
+       userId : this.userInfo.userId,
+       senderId : id
+     }
+
+     this.SocketService.markChatAsSeen(chatDetails);
+     this.getPreviousChatWithAUser();
+  } // end user selected chat
+
+  public sendMessageUsingKeyPress : any = (event : any) =>{
+    if(event.keyCode === 13){// 13 is keycode of enter.
+
+      this.sendMessage();
+    }
+  } // end send message using keypress
+
+  
+  public sendMessage: any = () => {
+
+    if(this.messageText){
+
+      let chatMsgObject = {
+        senderName: this.userInfo.firstName + " " + this.userInfo.lastName,
+        senderId: this.userInfo.userId,
+        receiverName: this.CookieService.get('receiverName'),
+        receiverId: this.CookieService.get('receiverId'),
+        message: this.messageText,
+        createdOn: new Date()
+      } // end chatMsgObject
+      console.log(chatMsgObject);
+      this.SocketService.sendChatMessage(chatMsgObject);
+      this.pushToChatWindow(chatMsgObject);
+      
+
+    }
+    else{
+      this.toastr.warning('text message can not be empty');
+
+    }
+
+  } // end sendMessage
+
+  public pushToChatWindow : any = (data) => {
+    this.messageText =' ';
+    this.messageList.push(data);
+    this.scrollToChatTop = false;
+  } //end push to chat window
+
+  public getMessageFromAUser : any = () => {
+
+    this.SocketService.chatByUserId(this.userInfo.userId)
+    .subscribe((data) => {
+
+      (this.receiverId==data.senderId)?this.messageList.push(data):'';
+
+      this.toastr.success(`${data.senderName} says ${data.message}`);
+
+      this.scrollToChatTop = false;
+    })// end subscribe
+  }// end get message from a user
+
+  public logOut : any = () => {
+    this.AppService.logOut().subscribe((apiResponse) => {
+      
+      if(apiResponse.status===200){
+        console.log('logout called');
+
+        this.CookieService.delete('authToken');
+        this.CookieService.delete('receiverId');
+        this.CookieService.delete('receiverName');
+
+        this.SocketService.exitSocket();
+
+        this.router.navigate(['/']);
+
+      }
+
+      else {
+        this.toastr.error(apiResponse.message);
+
+      }
+    
+    },
+    (err) =>{
+      this.toastr.error('some error occured');
+    }
+    ); //end subscribe
+
+  }// end logout
+
 
 }
