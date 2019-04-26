@@ -4,7 +4,7 @@ import { AppService} from './../../app.service';
 import { Router} from '@angular/router';
 import { CookieService} from 'ngx-cookie-service';
 import { ToastrService} from 'ngx-toastr';
-
+import { FirstCharComponent} from './../../shared/first-char/first-char.component';
 
 @Component({
   selector: 'app-chat-box',

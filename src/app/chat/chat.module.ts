@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatBoxComponent } from './chat-box/chat-box.component';
 import { RouterModule,Routes } from '@angular/router';
@@ -18,6 +18,7 @@ import { RemoveSpecialCharPipe } from './../shared/pipe/remove-special-char.pipe
     RouterModule.forChild([
      { path:'chat',component:ChatBoxComponent}
     ])
-  ]
+  ],
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class ChatModule { }
