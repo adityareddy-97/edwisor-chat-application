@@ -6,13 +6,16 @@ import { CookieService} from 'ngx-cookie-service';
 import { ToastrService} from 'ngx-toastr';
 import { FirstCharComponent} from './../../shared/first-char/first-char.component';
 
+import { CheckUser } from './../../CheckUser';
+import { ChatMessage} from './chat';
+
 @Component({
   selector: 'app-chat-box',
   templateUrl: './chat-box.component.html',
   styleUrls: ['./chat-box.component.css'],
   providers:[SocketService]
 })
-export class ChatBoxComponent implements OnInit {
+export class ChatBoxComponent implements OnInit,CheckUser {
 
   @ViewChild('scrollMe',{read : ElementRef})
 
@@ -68,7 +71,7 @@ export class ChatBoxComponent implements OnInit {
     this.getMessageFromAUser();
   }
 
-  public checkStatus : any = () => {
+  public checkStatus : any  = () => {
     if(this.CookieService.get('authToken') === undefined || this.CookieService.get('authToken') === '' || this.CookieService.get('authToken') === null)
     {
       this.router.navigate(['/']);
@@ -191,7 +194,7 @@ export class ChatBoxComponent implements OnInit {
 
     if(this.messageText){
 
-      let chatMsgObject = {
+      let chatMsgObject : ChatMessage = {
         senderName: this.userInfo.firstName + " " + this.userInfo.lastName,
         senderId: this.userInfo.userId,
         receiverName: this.CookieService.get('receiverName'),
@@ -259,6 +262,12 @@ export class ChatBoxComponent implements OnInit {
     ); //end subscribe
 
   }// end logout
+
+  public showUserName =(name:string)=>{
+
+    this.toastr.success("You are chatting with "+name);
+
+  }
 
 
 }

@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule,CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { NgModule} from '@angular/core';
 import { BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule, Routes} from '@angular/router';
 import { HttpClientModule} from '@angular/common/http';
@@ -37,7 +37,7 @@ import { ChatBoxComponent } from './chat/chat-box/chat-box.component';
   ],
   providers: [CookieService,AppService],
   bootstrap: [AppComponent],
-  schemas : [CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA]
+  
  
 })
 export class AppModule { }

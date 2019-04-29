@@ -51,7 +51,7 @@
         <i class="fa fa-circle offline" *ngIf="disconnectedSocket == true"></i>
         <br>
         <br>
-        <button (click)="logout()" class="btn btn-info customButton">Logout</button>
+        <button (click)="logOut()" class="btn btn-info customButton">Logout</button>
       </div>
 
       <ul class="list">
@@ -72,7 +72,7 @@
 
     <div class="col-12 col-sm-8 col-md-8 chat">
       <div class="chat-header clearfix mobileMenu" *ngIf="receiverName">
-        <first-char  [ERROR ->] [userName]="receiverName" [userBg]="'blue'" [userColor]="'white'"></first-char>
+        <first-char [name]="receiverName" [userBg]="'blue'" [userColor]="'white'" (notify)="showUserName($event)"></first-char>
 
         <div class="chat-about">
           <div class="chat-with">Chat with {{receiverName}}</div>
@@ -115,7 +115,7 @@
       <!-- end chat-history -->
 
       <div class="chat-message clearfix p-2" *ngIf="receiverName">
-        <textarea name="message-to-send" id="message-to-send" (keydown)="sendMessageUsingKeypress($event)" [(ngModel)]="messageText"
+        <textarea name="message-to-send" id="message-to-send" (keydown)="sendMessageUsingKeyPress($event)" [(ngModel)]="messageText"
           placeholder="Type your message" rows="3"></textarea>
 
         <button (click)="sendMessage()">Send</button>
