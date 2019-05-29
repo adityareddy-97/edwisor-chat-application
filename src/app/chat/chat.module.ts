@@ -6,6 +6,7 @@ import { ToastrModule} from 'ngx-toastr';
 import { SharedModule } from '../shared/shared.module';
 import { UserDetailsComponent} from '../shared/user-details/user-details.component';
 import { RemoveSpecialCharPipe } from './../shared/pipe/remove-special-char.pipe';
+import { ChatRouteGuardService } from './chat-route-guard.service';
 
 
 @NgModule({
@@ -16,9 +17,10 @@ import { RemoveSpecialCharPipe } from './../shared/pipe/remove-special-char.pipe
     ToastrModule.forRoot(),
 
     RouterModule.forChild([
-     { path:'chat',component:ChatBoxComponent}
+     { path:'chat',component:ChatBoxComponent,canActivate:[ChatRouteGuardService]}
     ])
   ],
+  providers : [ChatRouteGuardService]
   
 })
 export class ChatModule { }

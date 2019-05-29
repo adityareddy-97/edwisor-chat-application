@@ -12,6 +12,8 @@ export class UserDetailsComponent implements OnInit {
  @Input () userLastName : string;
  @Input () userStatus : string;
  @Input () messageRead : string;
+ @Input () userColor : string;
+ @Input () userBg : string;
  
  public firstChar : string;
 

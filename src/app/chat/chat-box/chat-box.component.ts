@@ -15,7 +15,7 @@ import { ChatMessage} from './chat';
   styleUrls: ['./chat-box.component.css'],
   providers:[SocketService]
 })
-export class ChatBoxComponent implements OnInit,CheckUser {
+export class ChatBoxComponent implements OnInit {
 
   @ViewChild('scrollMe',{read : ElementRef})
 
@@ -62,16 +62,16 @@ export class ChatBoxComponent implements OnInit,CheckUser {
     }
 
 
-    this.checkStatus();
+    //this.checkStatus();
 
     this.verifyUserConfirmation();
 
-    this.getOnlineUserList();
+    //this.getOnlineUserList();
 
     this.getMessageFromAUser();
   }
 
-  public checkStatus : any  = () => {
+  /*public checkStatus : any  = () => {
     if(this.CookieService.get('authToken') === undefined || this.CookieService.get('authToken') === '' || this.CookieService.get('authToken') === null)
     {
       this.router.navigate(['/']);
@@ -80,7 +80,7 @@ export class ChatBoxComponent implements OnInit,CheckUser {
     else{
       return true;
     }
-  }// end checkStatus
+  }// end checkStatus*/
 
   public verifyUserConfirmation : any = () => {
 
@@ -100,7 +100,7 @@ export class ChatBoxComponent implements OnInit,CheckUser {
        this.userList = [];
 
        for (let x in userList){
-          let temp = { 'userId ': x,'name': userList[x], 'unread': 0, 'chatting': false}
+          let temp = { 'userId': x,'name': userList[x], 'unread': 0, 'chatting': false}
           this.userList.push(temp);
        }
        console.log(this.userList);
